@@ -62,7 +62,7 @@ def display_data(result_frame, data, city_name):
         # Główny składnik zanieczyszczenia
         main_pollutant = "PM2.5" if pm2_5_value > pm10_value else "PM10"
         main_pollutant_value = max(pm2_5_value, pm10_value)
-        c.create_text(card_center_x + 50, card_center_y - 80, text=f"Main pollutant:", font=font_small_bold, fill="#111111", anchor="w")
+        c.create_text(card_center_x + 50, card_center_y - 80, text=f"Główne źródło:", font=font_small_bold, fill="#111111", anchor="w")
         c.create_text(card_center_x + 50, card_center_y - 50, text=f"{main_pollutant}: {main_pollutant_value:.2f} µg/m³", font=font_small_bold, fill="#111111", anchor="w")
 
         # PM2.5 i PM10 wartości
