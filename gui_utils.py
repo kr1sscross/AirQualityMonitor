@@ -1,4 +1,5 @@
-from tkinter import Canvas, messagebox
+import tkinter as tk
+from tkinter import Canvas, Toplevel
 from api_utils import calculate_aqi
 
 
@@ -28,6 +29,46 @@ def draw_rounded_card(canvas, x, y, w, h, r, color):
         func(x1, y1, x2, y2, fill=color, outline=color)
 
 
+def custom_alert(title, message):
+    alert_window = Toplevel()
+    alert_window.title(title)
+    alert_window.geometry("400x200")
+    alert_window.configure(bg="#FAFAFA")
+    alert_window.resizable(False, False)
+    alert_window.attributes("-topmost", True)
+
+    def close_alert():
+        alert_window.destroy()
+
+    title_label = tk.Label(alert_window, text=title, font=("Helvetica", 16, "bold"), bg="#FAFAFA", fg="#FF4C4C")
+    title_label.pack(pady=10)
+
+    message_label = tk.Label(alert_window, text=message, font=("Helvetica", 12), bg="#FAFAFA", fg="#333333", wraplength=350)
+    message_label.pack(pady=10)
+
+    close_button = tk.Button(
+        alert_window,
+        text="OK",
+        font=("Helvetica", 12),
+        bg="#FF4C4C",
+        fg="white",
+        activebackground="#FF6666",
+        activeforeground="white",
+        relief="flat",
+        command=close_alert,
+    )
+    close_button.pack(pady=10)
+
+    alert_window.update_idletasks()
+    window_width = alert_window.winfo_width()
+    window_height = alert_window.winfo_height()
+    screen_width = alert_window.winfo_screenwidth()
+    screen_height = alert_window.winfo_screenheight()
+    x = (screen_width // 2) - (window_width // 2)
+    y = (screen_height // 2) - (window_height // 2)
+    alert_window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+
 def display_data(result_frame, data, city_name):
     try:
         components = data["list"][0]["components"]
@@ -37,6 +78,13 @@ def display_data(result_frame, data, city_name):
         aqi = calculate_aqi(pm2_5_value, pm10_value)
         if aqi is None:
             return
+
+        if aqi > 200:
+            # Call custom alert
+            custom_alert(
+                "Bardzo niezdrowe powietrze",
+                "Jakość powietrza jest bardzo niezdrowa! Pozostań w domu i unikaj wychodzenia na zewnątrz."
+            )
 
         card_color, air_status = get_aqi_color_and_label(aqi)
 
@@ -70,7 +118,8 @@ def display_data(result_frame, data, city_name):
         # PM2.5 and PM10
         c.create_text(card_center_x - 250, card_center_y + 10, text="PM2.5:", font=font_pm_label, fill="#111111", anchor="w")
         c.create_text(card_center_x - 200, card_center_y + 10, text=f"{pm2_5_value:.2f} µg/m³", font=font_pm_value, fill="#111111", anchor="w")
+
         c.create_text(card_center_x + 50, card_center_y + 10, text="PM10:", font=font_pm_label, fill="#111111", anchor="w")
         c.create_text(card_center_x + 100, card_center_y + 10, text=f"{pm10_value:.2f} µg/m³", font=font_pm_value, fill="#111111", anchor="w")
     except (KeyError, IndexError, TypeError) as e:
-        messagebox.showerror("Błąd", f"Problem z przetwarzaniem danych: {e}")
+        tk.messagebox.showerror("Błąd", f"Problem z przetwarzaniem danych: {e}")
