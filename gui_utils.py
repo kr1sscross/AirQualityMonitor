@@ -5,15 +5,15 @@ from api_utils import calculate_aqi
 
 def get_aqi_color_and_label(aqi):
     if aqi <= 50:
-        return "#97E7B5", "Dobre"
+        return "#97E7B5", "Good"
     elif aqi <= 100:
-        return "#F2DF7E", "Umiarkowane"
+        return "#F2DF7E", "Moderate"
     elif aqi <= 150:
-        return "#F2B67E", "Niezdrowe dla wrażliwych"
+        return "#F2B67E", "Unhealthy for Sensitive Groups"
     elif aqi <= 200:
-        return "#F28282", "Niezdrowe"
+        return "#F28282", "Unhealthy"
     else:
-        return "#C190DC", "Bardzo niezdrowe"
+        return "#C190DC", "Very unhealthy"
 
 
 def draw_rounded_card(canvas, x, y, w, h, r, color):
@@ -82,8 +82,8 @@ def display_data(result_frame, data, city_name):
         if aqi > 200:
             # Call custom alert
             custom_alert(
-                "Bardzo niezdrowe powietrze",
-                "Jakość powietrza jest bardzo niezdrowa! Pozostań w domu i unikaj wychodzenia na zewnątrz."
+                "Very unhealthy AQI",
+            "The air quality is very unhealthy! Stay indoors and avoid going outside."
             )
 
         card_color, air_status = get_aqi_color_and_label(aqi)
@@ -112,7 +112,7 @@ def display_data(result_frame, data, city_name):
         # Main pollutant
         main_pollutant = "PM2.5" if pm2_5_value > pm10_value else "PM10"
         main_pollutant_value = max(pm2_5_value, pm10_value)
-        c.create_text(card_center_x + 50, card_center_y - 80, text="Główne źródło:", font=font_pm_label, fill="#111111", anchor="w")
+        c.create_text(card_center_x + 50, card_center_y - 80, text="Main source:", font=font_pm_label, fill="#111111", anchor="w")
         c.create_text(card_center_x + 50, card_center_y - 50, text=f"{main_pollutant}: {main_pollutant_value:.2f} µg/m³", font=font_pm_value, fill="#111111", anchor="w")
 
         # PM2.5 and PM10
@@ -122,4 +122,4 @@ def display_data(result_frame, data, city_name):
         c.create_text(card_center_x + 50, card_center_y + 10, text="PM10:", font=font_pm_label, fill="#111111", anchor="w")
         c.create_text(card_center_x + 100, card_center_y + 10, text=f"{pm10_value:.2f} µg/m³", font=font_pm_value, fill="#111111", anchor="w")
     except (KeyError, IndexError, TypeError) as e:
-        tk.messagebox.showerror("Błąd", f"Problem z przetwarzaniem danych: {e}")
+        tk.messagebox.showerror("Error", f"Error with fetching data: {e}")

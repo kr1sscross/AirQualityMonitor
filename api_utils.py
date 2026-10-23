@@ -1,7 +1,12 @@
 import requests
+import os
 from tkinter import messagebox
+from dotenv import load_dotenv
 
-API_KEY = "b7d1dfa2aa89a9c6d240f11a6a8e3843"
+load_dotenv()
+
+API_KEY = os.getenv("API_KEY")
+
 GEO_URL = "http://api.openweathermap.org/geo/1.0/direct"
 AIR_QUALITY_URL = "http://api.openweathermap.org/data/2.5/air_pollution"
 
@@ -10,7 +15,7 @@ def calculate_aqi(pm2_5, pm10):
     try:
         return round(max(float(pm2_5), float(pm10)))
     except ValueError:
-        messagebox.showerror("Błąd", "Nieprawidłowe dane PM2.5 lub PM10.")
+        messagebox.showerror("Error", "Invalid PM2.5 or PM10 data.")
         return None
 
 
@@ -23,10 +28,10 @@ def get_coordinates(city_name):
         if data:
             return data[0]["lat"], data[0]["lon"], data[0]["name"]
         else:
-            messagebox.showerror("Błąd", f"Nie znaleziono miasta: {city_name}")
+            messagebox.showerror("Error", f"City not found: {city_name}")
             return None
     except requests.exceptions.RequestException as e:
-        messagebox.showerror("Błąd", f"Problem z połączeniem: {e}")
+        messagebox.showerror("Error", f"Connection problem: {e}")
         return None
 
 
@@ -37,5 +42,5 @@ def get_air_quality(lat, lon):
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
-        messagebox.showerror("Błąd", f"Problem z pobraniem danych jakości powietrza: {e}")
+        messagebox.showerror("Error", f"Error fetching air quality data: {e}")
         return None
