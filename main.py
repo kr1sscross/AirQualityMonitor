@@ -1,48 +1,46 @@
-import tkinter as tk
-from tkinter import messagebox
-from api_utils import get_coordinates, get_air_quality
+import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
+
+from api_utils import coordinates, air_quality_data
 from gui_utils import display_data
 
 
-def fetch_data():
-    city_name = city_entry.get().strip()
-    if city_name:
-        coords = get_coordinates(city_name)
-        if coords:
-            lat, lon, name = coords
-            air_quality_data = get_air_quality(lat, lon)
-            if air_quality_data:
-                display_data(result_frame, air_quality_data, name)
-    else:
-        messagebox.showerror("Error", "Enter a city name.")
+def fetch_data() -> None:
+    city_name = entry.get().strip()
+
+    if not city_name:
+        CTkMessagebox(title="Error", message="Enter a city name.", icon="warning")
+        return
+
+    coords = coordinates(city_name)
+
+    if coords is None:
+        return
+
+    lat, lon, city_name = coords
+
+    air_quality_data2 = air_quality_data(lat, lon)
+
+    if air_quality_data2 is None:
+        return
+
+    display_data(frame, air_quality_data2, city_name)
 
 
-window = tk.Tk()
-window.title("Air Quality Monitor")
-window.geometry("800x500")
-window.configure(bg="#FAFAFA")
+app = ctk.CTk()
+app.title("Air Quality Monitor")
+app.geometry("800x500")
 
-top_frame = tk.Frame(window, bg="#FAFAFA")
-top_frame.pack(side=tk.TOP, pady=20, fill="x")
+search = ctk.CTkFrame(app, fg_color="transparent")
+search.place(relx=0.5, rely=0.1, anchor="center")
 
-city_frame = tk.Frame(top_frame, bg="#FAFAFA")
-city_frame.pack(pady=10)
+entry = ctk.CTkEntry(search, placeholder_text="Enter a city name", width=300)
+entry.grid(row=0, column=0, padx=(0, 10))
 
-city_entry = tk.Entry(city_frame, font=("Helvetica", 14), width=40, relief="flat", bg="#F4F4F4", fg="#555555")
-city_entry.insert(0, "Enter a city name.")
-city_entry.pack(side=tk.LEFT, ipady=5, padx=(10, 0))
+button = ctk.CTkButton(search, text="🔍", width=50, command=fetch_data)
+button.grid(row=0, column=1)
 
-city_entry.bind("<FocusIn>", lambda e: city_entry.delete(0, tk.END) if city_entry.get() == "Enter a city name." else None)
-city_entry.bind("<FocusOut>", lambda e: city_entry.insert(0, "Enter a city name.") if not city_entry.get() else None)
+frame = ctk.CTkFrame(app, fg_color="transparent", width=600, height=280, corner_radius=25)
+frame.place(relx=0.5, rely=0.55, anchor="center")
 
-fetch_button = tk.Button(
-    city_frame, text="🔍", font=("Helvetica", 14),
-    bg="#EFEFEF", fg="#333333", activebackground="#DFDFDF", activeforeground="#111111",
-    relief="flat", borderwidth=0, command=fetch_data
-)
-fetch_button.pack(side=tk.LEFT, padx=(5, 10))
-
-result_frame = tk.Frame(window, bg="#FAFAFA")
-result_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-window.mainloop()
+app.mainloop()
